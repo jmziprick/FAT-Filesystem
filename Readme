@@ -1,0 +1,45 @@
+File table
+	Starts @ 0x0
+	Ends @ 0xFFF
+
+	List of all files
+		File name - 11 bytes
+		ext - 3 bytes
+		Date - 1 byte day, 1 byte month, 1 byte year (3 bytes)
+		Address of first sector - 3 bytes (24 bit address) ->sector number
+		Folder ID - 1 byte (ID 0x0 is root directory)
+
+	Stores up to 146 files -> 28 bytes * 146 ~= 4096 (4k)
+
+	Blank entries denoted with '@'
+	Start of new entry space denoted with 0xFF
+
+Directories
+	Starts @ 0x1000
+	Ends @ 0x1FFF
+
+	Total size of entry 14 bytes
+		Used 1 byte (used '*', free '@')
+		Directory name 11 bytes
+		Directory ID number 1 byte
+		Folder ID 1 byte, so folders can be in folders creating tree structure
+
+	Total directory entries = 292 (4096 / 14) theoretical, actual 256
+
+Data 
+	Starts @ 0x2000
+
+	Each block is 256 bytes
+	Beginning of block header
+		1 byte '!' Free, 0xAA first block of file, or 0x0 contiguous file block
+		1 byte if linked '&' linked block, or '$' single block file
+			($ = if whole file fits in one block or end of linked block file)
+		3 bytes next sector (all zero if none)
+		1 byte length of data in block 
+			(in bytes, e.g. completely filled block = 0xFA)
+
+	Total header size 6 bytes
+	Total free bytes for data is 250 bytes
+
+	Total available data space 15 sectors
+--------------------------------------------------------------------------
